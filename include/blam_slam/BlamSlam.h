@@ -19,21 +19,18 @@
 
 
 class BlamSlam {
- public:
-	 typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
+public:
+	  typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
+    BlamSlam();
+    ~BlamSlam();
 
-  BlamSlam();
-  ~BlamSlam();
-
-  bool Initialize();
-  void ProcessPointCloudMessage(const PointCloud::ConstPtr& msg);
-  bool showPointCloud(int FrameCounter);
-  std::string itos(int i);   // Ω´int ◊™ªª≥…string 
+    bool Initialize();
+    void ProcessPointCloudMessage(const PointCloud::ConstPtr& msg);
+    bool showPointCloud(int FrameCounter);
+    std::string itos(int i);  // Â∞Ü int ËΩ¨Êç¢Êàê string 
 
 private:
-
-  // The node's name.
-  std::string name_;
+  std::string name_;  // The node's name.
   // Update rates and callback timers.
   double estimate_update_rate_;
   double visualization_update_rate_;
@@ -41,11 +38,12 @@ private:
   // Names of coordinate frames.
   std::string fixed_frame_id_;
   std::string base_frame_id_;
+
 public:
-  PointCloudFilter filter_;
-  PointCloudOdometry odometry_;
-  PointCloudLocalization localization_;
-  PointCloudMapper mapper_;
+    PointCloudFilter filter_;
+    PointCloudOdometry odometry_;
+    PointCloudLocalization localization_;
+    PointCloudMapper mapper_;
 };
 
 #endif

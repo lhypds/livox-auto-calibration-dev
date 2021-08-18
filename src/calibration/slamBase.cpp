@@ -1,8 +1,8 @@
 /*
 The mapping algorithm is an advanced implementation of the following open source project:
-  [blam](https://github.com/erik-nelson/blam). 
-Modifier: livox               dev@livoxtech.com
-
+  [blam](https://github.com/erik-nelson/blam).
+Modifier: livox  dev@livoxtech.com
+Modifier: enzan  liu@enzan-k.com
 
 Copyright (c) 2015, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,7 +36,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include <parameter_utils/slamBase.h>
 
 ParameterReader::ParameterReader(string filename)
@@ -52,7 +51,6 @@ ParameterReader::ParameterReader(string filename)
 		getline(fin, str);
 		if (str[0] == '#')
 		{
-			// 以‘＃’开头的是注释
 			continue;
 		}
 
@@ -67,6 +65,7 @@ ParameterReader::ParameterReader(string filename)
 			break;
 	}
 }
+
 string ParameterReader::getData(string key)
 {
 	map<string, string>::iterator iter = data.find(key);

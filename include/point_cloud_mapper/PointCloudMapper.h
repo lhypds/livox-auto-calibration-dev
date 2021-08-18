@@ -1,8 +1,6 @@
 #ifndef POINT_CLOUD_MAPPER_H
 #define POINT_CLOUD_MAPPER_H
 
-
-
 #include <pcl/octree/octree_search.h>
 
 #include <mutex>
@@ -10,28 +8,28 @@
 #include"common.h"
 
 class PointCloudMapper {
- public:
-	 typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
-	 typedef pcl::octree::OctreePointCloudSearch<pcl::POINT_TYPE> Octree;
 
-  PointCloudMapper();
-  ~PointCloudMapper();
+public:
+	  typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
+	  typedef pcl::octree::OctreePointCloudSearch<pcl::POINT_TYPE> Octree;
 
-  bool Initialize();
+    PointCloudMapper();
+    ~PointCloudMapper();
 
+    bool Initialize();
 
-  void Reset();
+    void Reset();
 
-  bool InsertPoints(const PointCloud::ConstPtr& points,
-                    PointCloud* incremental_points);
-  bool ApproxNearestNeighbors(const PointCloud& points, PointCloud* neighbors);
+    bool InsertPoints(const PointCloud::ConstPtr& points,
+                      PointCloud* incremental_points);
 
-  //void PublishMap();
+    bool ApproxNearestNeighbors(const PointCloud& points, PointCloud* neighbors);
 
- private:
+    //void PublishMap();
+
+private:
   // Node initialization.
   bool LoadParameters();
-
 
   // The node's name.
   std::string name_;
@@ -50,18 +48,16 @@ class PointCloudMapper {
   bool incremental_unsubscribed_;
 
   // Containers storing the map and its structure.
-
   Octree::Ptr map_octree_;
 
   // Map parameters.
   double octree_resolution_;
 
-
   std::thread publish_thread_;
   mutable std::mutex map_mutex_;
 
 public:
-	PointCloud::Ptr map_data_;
+	  PointCloud::Ptr map_data_;
 };
 
 #endif

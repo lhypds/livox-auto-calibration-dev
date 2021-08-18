@@ -1,8 +1,8 @@
 /*
 The mapping algorithm is an advanced implementation of the following open source project:
   [blam](https://github.com/erik-nelson/blam). 
-Modifier: livox               dev@livoxtech.com
-
+Modifier: livox  dev@livoxtech.com
+Modifier: enzan  liu@enzan-k.com
 
 Copyright (c) 2015, The Regents of the University of California (Regents).
 All rights reserved.
@@ -92,7 +92,7 @@ int main()
 {
     std::cout << "Start calibration..." << std::endl;
 
-    //================== Step.1 Reading H-LiDAR map data =====================//
+    // 1 Reading H-LiDAR map data
 
     std::cout << "Reading H-LiDAR map data..." << std::endl;
     pcl::PointCloud<pcl::PointXYZ>::Ptr H_LiDAR_Map(new pcl::PointCloud<pcl::PointXYZ>);
@@ -103,14 +103,13 @@ int main()
     }
     std::cout << "Loaded " << H_LiDAR_Map->size() << " data points from H_LiDAR_Map.pcd" << std::endl;
 
-    //put it into map
+    // put it into map
     PointCloudMapper maps;
     maps.Initialize();
     pcl::PointCloud<pcl::PointXYZ>::Ptr unused(new pcl::PointCloud<pcl::PointXYZ>);
     maps.InsertPoints(H_LiDAR_Map, unused.get());
 
-    //================== Step.2 Reading H-LiDAR's Trajectory and init guess=====================//
-
+    // 2 Reading H-LiDAR's Trajectory and init guess
     ifstream T_Mat_File("../data/T_Matrix.txt");
     Eigen::Matrix4f T_Matrix = Eigen::Matrix4f::Identity();
 
@@ -128,7 +127,7 @@ int main()
     }
 
     init_guess_0 = init_guess;
-    //================== Step.3 Reading L-LiDAR frames =====================//
+    // 3 Reading L-LiDAR frames
 
     struct dirent **namelist;
     int framenumbers = scandir(framesDir, &namelist, 0, alphasort) - 2;
@@ -136,8 +135,7 @@ int main()
     int cframe_count = 0;
     cout << "Loaded " << framenumbers << " frames from Target-LiDAR" << endl;
 
-    //=================================
-    //prepare ICP
+    // prepare ICP
     pcl::PointCloud<pcl::PointXYZ>::Ptr ICP_output_cloud(new pcl::PointCloud<pcl::PointXYZ>); //not use,but necessary
     pcl::GeneralizedIterativeClosestPoint<pcl::PointXYZ, pcl::PointXYZ> icp;
     icp.setTransformationEpsilon(0.0000000001); //0.0000000001
@@ -146,8 +144,7 @@ int main()
     icp.setRANSACIterations(0);
     icp.setMaximumOptimizerIterations(50); // default 20
 
-    //=================================
-    //prepare display
+    // prepare display
     boost::shared_ptr<pcl::visualization::PCLVisualizer>
         viewer_final(new pcl::visualization::PCLVisualizer("3D Viewer"));
     viewer_final->setBackgroundColor(0, 0, 0);
@@ -158,17 +155,13 @@ int main()
     viewer_final->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "target cloud");
     viewer_final->addPointCloud<pcl::PointXYZ>(H_LiDAR_Map, match_color, "match cloud"); //display the match cloud
 
-    //=================================
     // prepare save matrix
-
     char filename[] = "../data/calib_data.txt";
     ofstream fout(filename);
     fout.setf(ios::fixed, ios::floatfield);
     fout.precision(7);
 
-    //=================================
-    //              START
-    //=================================
+    // START
     while (!viewer_final->wasStopped())
     {
         pcl::PointCloud<pcl::PointXYZ>::Ptr frames(new pcl::PointCloud<pcl::PointXYZ>);
@@ -188,7 +181,7 @@ int main()
             }
         }
 
-        //================== Step.4 Start calibration =====================//
+        // 4 Start calibration
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr trans_output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr final_output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -198,15 +191,14 @@ int main()
         pcl::PointCloud<pcl::PointXYZ>::Ptr neighbors_L(new pcl::PointCloud<pcl::PointXYZ>); //201 neighbors points from nap202
         maps.ApproxNearestNeighbors(*final_output_cloud, neighbors_L.get());
 
-        //INVERSE T_mat==============================
-        
+        // INVERSE T_mat
         gu::Transform3 inverse_mat;
         inverse_mat.translation = gu::Vec3(T_Matrix(0, 3), T_Matrix(1, 3), T_Matrix(2, 3));
         inverse_mat.rotation = gu::Rot3(T_Matrix(0, 0), T_Matrix(0, 1), T_Matrix(0, 2),
                                         T_Matrix(1, 0), T_Matrix(1, 1), T_Matrix(1, 2),
                                         T_Matrix(2, 0), T_Matrix(2, 1), T_Matrix(2, 2));
 
-        const gu::Transform3 estimate = gu::PoseInverse(inverse_mat); //integrated_estimate from config parameters
+        const gu::Transform3 estimate = gu::PoseInverse(inverse_mat); // integrated_estimate from config parameters
         const Eigen::Matrix<double, 3, 3> T_Matrix_Inverse_R = estimate.rotation.Eigen();
         const Eigen::Matrix<double, 3, 1> T_Matrix_Inverse_T = estimate.translation.Eigen();
 
@@ -214,19 +206,17 @@ int main()
         T_Matrix_Inverse.block(0, 0, 3, 3) = T_Matrix_Inverse_R;
         T_Matrix_Inverse.block(0, 3, 3, 1) = T_Matrix_Inverse_T;
 
-        //====== Core step ======//
-        
+        // Core step
         pcl::PointCloud<pcl::PointXYZ>::Ptr neighbors_trans(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::transformPointCloud(*neighbors_L, *neighbors_trans, T_Matrix_Inverse);
 
-        //Do ICP and get the tiny trans T
-        icp.setInputSource(trans_output_cloud); //201
-        icp.setInputTarget(neighbors_trans);    //202 (201's neighbor's point cloud)
+        // Do ICP and get the tiny trans T
+        icp.setInputSource(trans_output_cloud); // 201
+        icp.setInputTarget(neighbors_trans); // 202 (201's neighbor's point cloud)
         icp.align(*ICP_output_cloud);
         const Eigen::Matrix4f Tiny_T = icp.getFinalTransformation();
 
         //std::cout << "Score: " << icp.getFitnessScore() << std::endl;
-
         if (icp.getFitnessScore() > 1)
         {
             //std::cout<<"not match, skip this"<<std::endl;
@@ -241,7 +231,7 @@ int main()
             //std::cout << Final_Calib_T.matrix() << std::endl;
             init_guess = Final_Calib_T;
 
-            //===== Out put Euler angle =====//
+            // Out put Euler angle
             gu::Vector3 EulerAngle;
             gu::Rot3 rot_mat(Final_Calib_T(0, 0), Final_Calib_T(0, 1), Final_Calib_T(0, 2),
                              Final_Calib_T(1, 0), Final_Calib_T(1, 1), Final_Calib_T(1, 2),
@@ -267,6 +257,5 @@ int main()
             break;
         }
     }
-
     return 0;
 }

@@ -1,8 +1,8 @@
 /*
 The mapping algorithm is an advanced implementation of the following open source project:
   [blam](https://github.com/erik-nelson/blam). 
-Modifier: livox               dev@livoxtech.com
-
+Modifier: livox  dev@livoxtech.com
+Modifier: enzan  liu@enzan-k.com
 
 Copyright (c) 2015, The Regents of the University of California (Regents).
 All rights reserved.
@@ -41,16 +41,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace gu = geometry_utils;
 
-
 BlamSlam::BlamSlam() {
+	
 }
 
 BlamSlam::~BlamSlam() {}
 
-
-
 bool BlamSlam::Initialize() {
-
 	if (!filter_.Initialize()) {
 		return false;
 	}
@@ -68,8 +65,6 @@ bool BlamSlam::Initialize() {
 	}
 	return true;
 }
-
-
 
 void BlamSlam::ProcessPointCloudMessage(const PointCloud::ConstPtr& msg) {
 	PointCloud::Ptr msg_filtered(new PointCloud);
@@ -89,32 +84,25 @@ void BlamSlam::ProcessPointCloudMessage(const PointCloud::ConstPtr& msg) {
 	PointCloud::Ptr msg_base(new PointCloud);
 	PointCloud::Ptr msg_fixed(new PointCloud);
 
-	
-
-	localization_.MotionUpdate(odometry_.GetIncrementalEstimate()); 
+	localization_.MotionUpdate(odometry_.GetIncrementalEstimate());
 
 	localization_.TransformPointsToFixedFrame(*msg_filtered,msg_transformed.get());
 
-	
-
 	mapper_.ApproxNearestNeighbors(*msg_transformed, msg_neighbors.get());
-
-	
 
 	localization_.TransformPointsToSensorFrame(*msg_neighbors, msg_neighbors.get());
 
-	
-
 	localization_.MeasurementUpdate(msg_filtered, msg_neighbors, msg_base.get());
 
-	
 	localization_.MotionUpdate(gu::Transform3::Identity());
-	localization_.TransformPointsToFixedFrame(*msg, msg_fixed.get());
-	PointCloud::Ptr unused(new PointCloud);
-	mapper_.InsertPoints(msg_fixed, unused.get());
 
-	
+	localization_.TransformPointsToFixedFrame(*msg, msg_fixed.get());
+
+	PointCloud::Ptr unused(new PointCloud);
+
+	mapper_.InsertPoints(msg_fixed, unused.get());
 }
+
 std::string BlamSlam::itos(int i)   {
 	std::stringstream s;
 	s << i;

@@ -3,4 +3,4 @@
 typedef struct{
 	float x;
 	float y;
-}Point2D32f;
+} Point2D32f;

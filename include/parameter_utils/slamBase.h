@@ -7,7 +7,6 @@
 #include <map>
 using namespace std;
 
-
 class ParameterReader
 {
 public:

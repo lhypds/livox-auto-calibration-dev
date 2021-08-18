@@ -1,8 +1,8 @@
 /*
 The mapping algorithm is an advanced implementation of the following open source project:
   [blam](https://github.com/erik-nelson/blam). 
-Modifier: livox               dev@livoxtech.com
-
+Modifier: livox  dev@livoxtech.com
+Modifier: enzan  liu@enzan-k.com
 
 Copyright (c) 2015, The Regents of the University of California (Regents).
 All rights reserved.
@@ -35,8 +35,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
-
-
 
 #include <blam_slam/BlamSlam.h>
 #include "common.h"
@@ -89,11 +87,9 @@ std::string itos(int i)
 }
 
 
-
 int main(void)
 {
-  
-    //================== Step.1 Reading L-LiDAR frames =====================//
+    // 1. Read L-LiDAR frames
     struct dirent **namelist;
     int framenumbers = scandir(framesDir, &namelist, 0, alphasort) - 2;
     int frame_count = 100000;
@@ -105,15 +101,12 @@ int main(void)
     ofstream fout(filename);
 
     pcl::visualization::CloudViewer viewer("Cloud Viewer");
-    
     LivoxSLAM.Initialize();
 
-   //================== Step.2 building submap =====================//
-
+    // 2. Build submap
     while (!viewer.wasStopped())  
     {
         while (frame_count < framenumbers + 100000)
-        
         {
             pcl::PointCloud<pcl::PointXYZ>::Ptr frames(new pcl::PointCloud<pcl::PointXYZ>);
             if (pcl::io::loadPCDFile<pcl::PointXYZ>(string(framesDir) + "/" + itos(frame_count) + ".pcd", *frames) == -1)
@@ -123,8 +116,6 @@ int main(void)
             }
             
             std::vector<int> mapping;
-            
-            
             LivoxSLAM.ProcessPointCloudMessage(frames);
 
             const gu::Transform3 estimate = LivoxSLAM.localization_.GetIntegratedEstimate();
@@ -137,10 +128,8 @@ int main(void)
             fout << tf.matrix() << endl;
 
             viewer.showCloud(LivoxSLAM.mapper_.map_data_);
-            
             frame_count++;
             cframe_count++;
-           
             printProgress ((double)cframe_count/(double)framenumbers);
         }
 
@@ -150,8 +139,6 @@ int main(void)
         std::cout << "Mapping done！" << std::endl;
         fout.close();
         break;
-       
     }
-
     return 0;
 }

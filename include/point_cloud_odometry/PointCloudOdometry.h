@@ -12,71 +12,66 @@
 //#include <tf2_ros/transform_broadcaster.h>
 
 class PointCloudOdometry {
- public:
-	 typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
 
-  PointCloudOdometry();
-  ~PointCloudOdometry();
+public:
+    typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
 
-  bool Initialize(/*const ros::NodeHandle& n*/);
+    PointCloudOdometry();
+    ~PointCloudOdometry();
 
-  bool UpdateEstimate(const PointCloud& points);
+    bool Initialize(/*const ros::NodeHandle& n*/);
 
-  // Get pose estimates.
-  const geometry_utils::Transform3& GetIncrementalEstimate() const;
-  const geometry_utils::Transform3& GetIntegratedEstimate() const;
+    bool UpdateEstimate(const PointCloud& points);
 
-  // not initialized.
-  bool GetLastPointCloud(PointCloud::Ptr& out) const;
+    // Get pose estimates.
+    const geometry_utils::Transform3& GetIncrementalEstimate() const;
+    const geometry_utils::Transform3& GetIntegratedEstimate() const;
 
- private:
-  // Node initialization.
-  bool LoadParameters(/*const ros::NodeHandle& n*/);
+    // not initialized.
+    bool GetLastPointCloud(PointCloud::Ptr& out) const;
 
-  bool UpdateICP();
+private:
+    // Node initialization.
+    bool LoadParameters(/*const ros::NodeHandle& n*/);
+    bool UpdateICP();
 
-  
+    // The node's name.
+    std::string name_;
 
-  // The node's name.
-  std::string name_;
+    // Pose estimates.
+    geometry_utils::Transform3 integrated_estimate_;
+    geometry_utils::Transform3 incremental_estimate_;
 
-  // Pose estimates.
-  geometry_utils::Transform3 integrated_estimate_;
-  geometry_utils::Transform3 incremental_estimate_;
+    // Coordinate frames.
+    std::string fixed_frame_id_;
+    std::string odometry_frame_id_;
 
-  
+    // For initialization.
+    bool initialized_;
 
-  // Coordinate frames.
-  std::string fixed_frame_id_;
-  std::string odometry_frame_id_;
+    // Point cloud containers.
+    PointCloud::Ptr query_;
+    PointCloud::Ptr reference_;
 
+    // Parameters for filtering, and ICP.
+    struct Parameters {
+        // Stop ICP if the transformation from the last iteration was this small.
+        double icp_tf_epsilon;
 
-  // For initialization.
-  bool initialized_;
+        // During ICP, two points won't be considered a correspondence if they are
+        // at least this far from one another.
+        double icp_corr_dist;
 
-  // Point cloud containers.
-  PointCloud::Ptr query_;
-  PointCloud::Ptr reference_;
+        // Iterate ICP this many times.
+        unsigned int icp_iterations;
+    } params_;
 
-  // Parameters for filtering, and ICP.
-  struct Parameters {
-    // Stop ICP if the transformation from the last iteration was this small.
-    double icp_tf_epsilon;
-
-    // During ICP, two points won't be considered a correspondence if they are
-    // at least this far from one another.
-    double icp_corr_dist;
-
-    // Iterate ICP this many times.
-    unsigned int icp_iterations;
-  } params_;
-
-  // Maximum acceptable translation and rotation tolerances. If
-  // transform_thresholding_ is set to false, neither of these thresholds are
-  // considered.
-  bool transform_thresholding_;
-  double max_translation_;
-  double max_rotation_;
+    // Maximum acceptable translation and rotation tolerances. If
+    // transform_thresholding_ is set to false, neither of these thresholds are
+    // considered.
+    bool transform_thresholding_;
+    double max_translation_;
+    double max_rotation_;
 };
 
 #endif

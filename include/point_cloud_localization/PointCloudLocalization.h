@@ -10,67 +10,67 @@
 #include"common.h"
 
 class PointCloudLocalization {
- public:
-	 typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
 
-  PointCloudLocalization();
-  ~PointCloudLocalization();
+public:
+	  typedef pcl::PointCloud<pcl::POINT_TYPE> PointCloud;
 
-  bool Initialize();
+    PointCloudLocalization();
+    ~PointCloudLocalization();
 
-  bool TransformPointsToFixedFrame(const PointCloud& points,
-                                   PointCloud* points_transformed) const;
+    bool Initialize();
 
-  bool TransformPointsToSensorFrame(const PointCloud& points,
+    bool TransformPointsToFixedFrame(const PointCloud& points,
                                     PointCloud* points_transformed) const;
 
-  bool MotionUpdate(const geometry_utils::Transform3& incremental_odom);
+    bool TransformPointsToSensorFrame(const PointCloud& points,
+                                      PointCloud* points_transformed) const;
 
-  bool MeasurementUpdate(const PointCloud::Ptr& query,
-                         const PointCloud::Ptr& reference,
-                         PointCloud* aligned_query);
+    bool MotionUpdate(const geometry_utils::Transform3& incremental_odom);
 
-  const geometry_utils::Transform3& GetIncrementalEstimate() const;
-  const geometry_utils::Transform3& GetIntegratedEstimate() const;
+    bool MeasurementUpdate(const PointCloud::Ptr& query,
+                          const PointCloud::Ptr& reference,
+                          PointCloud* aligned_query);
 
-  void SetIntegratedEstimate(
-      const geometry_utils::Transform3& integrated_estimate);
+    const geometry_utils::Transform3& GetIncrementalEstimate() const;
+    const geometry_utils::Transform3& GetIntegratedEstimate() const;
 
- private:
-  // Node initialization.
-  bool LoadParameters();
+    void SetIntegratedEstimate(
+        const geometry_utils::Transform3& integrated_estimate);
 
-  
-  // The node's name.
-  std::string name_;
-
-  // Pose estimate.
-  geometry_utils::Transform3 incremental_estimate_;
-  geometry_utils::Transform3 integrated_estimate_;
-
-  
-
-  // Coordinate frames.
-  std::string fixed_frame_id_;
-  std::string base_frame_id_;
-
-  // Parameters for filtering and ICP.
-  struct Parameters {
-    // Stop ICP if the transformation from the last iteration was this small.
-    double tf_epsilon;
-
-    // During ICP, two points won't be considered a correspondence if they are
-    // at least this far from one another.
-    double corr_dist;
-
-    // Iterate ICP this many times.
-    unsigned int iterations;
-  } params_;
+private:
+    // Node initialization.
+    bool LoadParameters();
 
 
-  bool transform_thresholding_;
-  double max_translation_;
-  double max_rotation_;
+    // The node's name.
+    std::string name_;
+
+    // Pose estimate.
+    geometry_utils::Transform3 incremental_estimate_;
+    geometry_utils::Transform3 integrated_estimate_;
+
+
+
+    // Coordinate frames.
+    std::string fixed_frame_id_;
+    std::string base_frame_id_;
+
+    // Parameters for filtering and ICP.
+    struct Parameters {
+      // Stop ICP if the transformation from the last iteration was this small.
+      double tf_epsilon;
+
+      // During ICP, two points won't be considered a correspondence if they are
+      // at least this far from one another.
+      double corr_dist;
+
+      // Iterate ICP this many times.
+      unsigned int iterations;
+    } params_;
+
+    bool transform_thresholding_;
+    double max_translation_;
+    double max_rotation_;
 };
 
 #endif
