@@ -16,11 +16,11 @@ FILE(GLOB SRCS0 src/mapping/*.cpp)
 FILE(GLOB SRCS1 src/calibration/*.cpp)
 FILE(GLOB SRCS2 src/ransac/*.cpp)
 
-add_executable (mapping  ${SRCS0} )
+add_executable (mapping ${SRCS0} )
 target_link_libraries (mapping ${PCL_LIBRARIES} ${LIBS})
 
-add_executable (calibration  ${SRCS1} )
+add_executable (calibration ${SRCS1} )
 target_link_libraries (calibration ${PCL_LIBRARIES} ${LIBS})
 
-add_executable (fitline  ${SRCS2} )
+add_executable (fitline ${SRCS2} )
 target_link_libraries (fitline ${PCL_LIBRARIES} ${LIBS})

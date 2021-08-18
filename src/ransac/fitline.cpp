@@ -1,4 +1,5 @@
 #include"fitline.h"
+
 const double eps = 1e-6;
 
 int FitLine2D( Point2D32f * points, int _count, float *weights, float *line )
@@ -74,7 +75,6 @@ double CalcDist2D( Point2D32f * points, int count, float *_line, float *dist )
     return sum_dist;
 }
 
-
 int FitLine2D(Point2D32f * points, int count, float *line)
 {
 	// 进行一遍拟合，获取直线参数
@@ -113,7 +113,6 @@ void WeightL12( float *d, int count, float *w )
     }
 }
 
-
 void WeightHuber( float *d, int count, float *w, float _c )
 {
     int i;
@@ -150,5 +149,3 @@ void WeightWelsch( float *d, int count, float *w, float _c )
 double max(double a, double b){
 	return a > b ? a : b;
 }
-
-
