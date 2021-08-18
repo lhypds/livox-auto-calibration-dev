@@ -86,7 +86,6 @@ std::string itos(int i)
     return s.str();
 }
 
-
 int main(void)
 {
     // 1. Read L-LiDAR frames
